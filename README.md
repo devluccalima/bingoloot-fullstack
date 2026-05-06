@@ -14,7 +14,7 @@ O **BingoLoot** é uma aplicação Full Stack criada para gamificar a organizaç
 
 Inspirado em mecânicas de jogos *Gacha* e obras como *Solo Leveling*, o usuário é tratado como um "Jogador". Em vez de depositar um valor fixo, o Sistema exige que o jogador gire a roleta diária para descobrir qual será o valor do seu depósito. Cada valor está atrelado a um "Tier de Raridade" (do Ferro ao Lendário), com um Dashboard completo para acompanhar a evolução do Rank do jogador e a barra de progresso até a meta final.
 
-`![GoDrinking!](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN1amlicWY5M2ZlOWgycHJ1dmhuYnRxdjlrMHk5N3BrYzR0aTVnbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/57XmIhxWMoedVJJxnQ/giphy.gif)`
+![GoDrinking!](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHhkc3dwemRvMGdraTdieXBhamRhNnF5OWNtYzd0ZHBuM3RvaXB0NCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/oslvSrWto7YdaJ8seR/giphy.gif)
 
 ---
 
