@@ -1,0 +1,722 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700;900&display=swap');
+
+$cyan:       #00e5ff;
+$amber:      #ffaa00;
+$red:        #ff3333;
+$bg-color:   #030407;
+$bg-panel:   rgba(4, 12, 24, 0.85);
+$bg-slot:    #08101a;
+$text-main:  #c4d8e2;
+$text-light: #ffffff;
+$text-muted: #89a4b5;
+$text-dim:   #4a5c70;
+$mono:       'Share Tech Mono', monospace;
+$title:      'Rajdhani', sans-serif;
+
+$c-iron:      #8c92a1; 
+$c-bronze:    #cd7f32; 
+$c-silver:    #e0e0e0; 
+$c-platinum:  #00e5ff; 
+$c-emerald:   #2ecc71; 
+$c-diamond:   #b388ff; 
+$c-immortal:  #ff3333; 
+$c-legendary: #ffd700; 
+
+// ─── O Vazio ─────────────────────────────────────────────────────────────────
+
+:host {
+  display: block; /* Tiramos o flex daqui para parar de empurrar para baixo! */
+  min-height: 100vh;
+  background-color: $bg-color;
+  background-image: radial-gradient(circle at center, #0a0f1a 0%, #000000 100%);
+  color: $text-main;
+  font-family: $mono;
+  
+  /* Aqui você controla a distância exata do topo! 3rem é perto do topo. */
+  padding: 3rem 2rem 2rem 2rem; 
+}
+
+
+
+// ─── A Tela de Boot Inicial (Standby) ────────────────────────────────────────
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  background-color: #000; /* Breu total */
+  z-index: 99999; /* Acima de absolutamente tudo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-boot {
+  background: transparent;
+  color: rgba($cyan, 0.6);
+  font-family: $title;
+  font-size: 1.8rem;
+  letter-spacing: 6px;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  animation: pulseBoot 2s infinite alternate;
+  transition: all 0.3s;
+
+  &:hover {
+    color: $cyan;
+    text-shadow: 0 0 25px $cyan;
+    transform: scale(1.05);
+    animation: none; /* Para de piscar quando o mouse passa por cima */
+  }
+}
+
+@keyframes pulseBoot {
+  0% { opacity: 0.4; text-shadow: 0 0 5px rgba($cyan, 0.1); }
+  100% { opacity: 1; text-shadow: 0 0 20px rgba($cyan, 0.8); }
+}
+
+// ─── A Tela de Cinema (Vídeo de Abertura) ────────────────────────────────────
+.cinematic-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: #000;
+  z-index: 99998; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cinematic-video {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover; 
+}
+
+.skip-btn {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: $mono;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  &:hover {
+    color: white;
+    border-color: white;
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+// ─── ANIMAÇÃO DE ABERTURA DO SISTEMA ─────────────────────────────────────────
+
+.system-opening {
+  position: relative;
+  overflow: hidden; 
+  min-height: 0 !important; 
+  
+  animation: 
+    openHorizontal 0.5s ease-out forwards,
+    openVertical 0.7s ease-in-out 0.5s forwards;
+    
+  max-height: 2px;
+  padding: 0; // Inicia esmagada
+  width: 0;
+  opacity: 1;
+
+  & > * {
+    opacity: 0;
+    animation: fadeInContent 0.5s ease 1.2s forwards;
+  }
+}
+
+.system-closing {
+  position: relative;
+  overflow: hidden;
+  min-height: 0 !important;
+  
+  // Exatamente o reverso: some texto (0.3s) -> esmaga vertical (0.5s) -> encolhe linha (0.4s)
+  animation: 
+    closeVertical 0.5s ease-in-out 0.3s forwards,
+    closeHorizontal 0.4s ease-in 0.8s forwards;
+    
+  width: 100%;
+  max-height: 2000px; // Altura segura para abranger até o Dashboard gigante
+  padding: 3rem;
+  background-color: $bg-panel;
+
+  & > * {
+    opacity: 1;
+    animation: fadeOutContent 0.3s ease forwards;
+  }
+}
+
+// FASE DE TEXTO
+@keyframes fadeInContent {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOutContent {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-15px); }
+}
+
+// FASE DE ABERTURA
+@keyframes openHorizontal {
+  0% { width: 0; max-height: 2px; padding: 0; background-color: $cyan; box-shadow: 0 0 15px $cyan; border: none; }
+  100% { width: 100%; max-height: 2px; padding: 0; background-color: $cyan; box-shadow: 0 0 15px $cyan; border: none; }
+}
+@keyframes openVertical {
+  0% { max-height: 2px; padding: 0; background-color: $cyan; box-shadow: 0 0 15px $cyan; border: none; }
+  10% { background-color: $bg-panel; }
+  100% { max-height: 2000px; padding: 3rem; background-color: $bg-panel; border: 1px solid rgba($cyan, 0.3); box-shadow: 0 0 30px rgba($cyan, 0.05), inset 0 0 20px rgba($cyan, 0.05); }
+}
+
+// FASE DE FECHAMENTO
+@keyframes closeVertical {
+  0% { max-height: 2000px; padding: 3rem; background-color: $bg-panel; border: 1px solid rgba($cyan, 0.3); box-shadow: 0 0 30px rgba($cyan, 0.05), inset 0 0 20px rgba($cyan, 0.05); }
+  90% { background-color: $cyan; border: none; }
+  100% { max-height: 2px; padding: 0; background-color: $cyan; border: none; box-shadow: 0 0 15px $cyan; }
+}
+@keyframes closeHorizontal {
+  0% { width: 100%; max-height: 2px; padding: 0; background-color: $cyan; box-shadow: 0 0 15px $cyan; border: none; }
+  100% { width: 0; max-height: 2px; padding: 0; background-color: transparent; box-shadow: none; border: none; }
+}
+
+// ─── Mixin: Pinta apenas as Costas da Carta e o Grid ─────────────────────────
+@mixin rarity-theme($color) {
+  
+  .card-back {
+    border-color: rgba($color, 0.4);
+    background: linear-gradient(160deg, rgba($color, 0.05) 0%, rgba($color, 0.1) 100%);
+  }
+  .card-rarity {
+    color: $color;
+    border-color: rgba($color, 0.5);
+    background: rgba($color, 0.1);
+  }
+  .card-amount {
+    color: $color;
+    text-shadow: 0 0 10px rgba($color, 0.4);
+  }
+
+  // Efeito de "Drop" quando a carta vencedora gira
+  &.gacha-card.is-winner {
+    box-shadow: 0 0 50px rgba($color, 0.4); // Brilho atrás da carta girando
+    
+    .card-back {
+      border-width: 2px;
+      border-color: $color;
+      background: linear-gradient(145deg, rgba($color, 0.15) 0%, #060910 80%);
+      box-shadow: inset 0 0 40px rgba($color, 0.3);
+    }
+    .card-amount { text-shadow: 0 0 30px rgba($color, 0.9); }
+    .card-bottom { color: $text-light; font-weight: bold; background: rgba($color, 0.5); }
+  }
+
+  &.slot {
+    border-color: rgba($color, 0.25);
+    .s-amount { color: $color; }
+    
+    &:hover {
+      border-color: $color;
+      background-color: rgba($color, 0.08);
+      box-shadow: inset 0 0 15px rgba($color, 0.15);
+    }
+    &.cleared {
+      background-color: rgba($color, 0.03);
+      border-color: rgba($color, 0.15);
+      .s-id, .s-amount { opacity: 0.2; }
+      .cleared-stamp { color: $color; text-shadow: 0 0 8px $color; }
+    }
+  }
+}
+
+.iron      { @include rarity-theme($c-iron); }
+.bronze    { @include rarity-theme($c-bronze); }
+.silver    { @include rarity-theme($c-silver); }
+.platinum  { @include rarity-theme($c-platinum); }
+.emerald   { @include rarity-theme($c-emerald); }
+.diamond   { @include rarity-theme($c-diamond); }
+.immortal  { @include rarity-theme($c-immortal); }
+.legendary { @include rarity-theme($c-legendary); }
+
+// ─── O Palco do Gacha ────────────────────────────────────────────────────────
+.gacha-stage {
+  width: 100%;
+  height: 380px; 
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba($cyan, 0.02);
+  border: 1px solid rgba($cyan, 0.2);
+  overflow: hidden; 
+  border-radius: 4px;
+  transition: background 0.5s;
+
+  &.has-result {
+    background: rgba(0, 0, 0, 0.7);
+    .gacha-card:not(.is-winner) {
+      opacity: 0.3;
+      filter: blur(4px);
+    }
+  }
+}
+
+.gacha-track-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.gacha-track {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0;
+  will-change: transform;
+  position: absolute;
+  left: 50%;
+}
+
+// ─── FÍSICA 3D DAS CARTAS ────────────────────────────────────────────────────
+.gacha-card {
+  box-sizing: border-box;
+  width: 140px;
+  height: 200px;
+  flex-shrink: 0;
+  position: relative;
+  perspective: 1000px; /* Cria o espaço 3D para o giro perfeito */
+  transition: transform 0.5s cubic-bezier(0.2, 1.2, 0.3, 1), opacity 0.5s, filter 0.5s;
+  
+  .card-flipper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-style: preserve-3d;
+  }
+
+  .card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden; /* Esconde as costas de cada face */
+    border-radius: 8px;
+    background: #060910;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    border: 1px solid;
+  }
+
+  /* A Frente Misteriosa (O que rola na tela) */
+  .card-front {
+    border-color: rgba($cyan, 0.3);
+    background: radial-gradient(circle at center, rgba($cyan, 0.1) 0%, #05080d 80%);
+    align-items: center;
+    justify-content: center;
+
+    .mystery-mark {
+      font-family: $title;
+      font-size: 5rem;
+      color: rgba($cyan, 0.3);
+      text-shadow: 0 0 20px rgba($cyan, 0.5);
+      animation: pulseMystery 2s infinite alternate;
+    }
+
+    .card-bottom {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      padding: 6px;
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      color: rgba($cyan, 0.6);
+      border-top: 1px solid rgba($cyan, 0.2);
+      background: rgba($cyan, 0.05);
+    }
+  }
+
+  /* O Verso Real (Gira 180 graus pra se esconder inicialmente) */
+  .card-back {
+    transform: rotateY(180deg);
+    
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      font-size: 0.65rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      .card-id { color: $text-main; }
+    }
+
+    .card-middle {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      .currency { font-size: 0.8rem; color: $text-muted; margin-bottom: -5px; }
+      .card-amount { font-family: $title; font-size: 2.5rem; font-weight: 900; line-height: 1; }
+    }
+
+    .card-bottom {
+      text-align: center;
+      padding: 6px;
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      color: $text-main;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+    }
+  }
+
+  // 💥 O MOMENTO DA REVELAÇÃO! (O Alvo foi escolhido)
+  &.is-winner {
+    transform: scale(1.35); // Infla a carta
+    z-index: 20;
+    animation: winnerPulse 2s infinite alternate ease-in-out;
+    
+    .card-flipper {
+      transform: rotateY(180deg); // Gira a carta revelando o Verso!
+    }
+
+    .card-amount { font-size: 3rem; }
+    .card-top { font-size: 0.75rem; padding: 10px; }
+    .card-bottom { font-size: 0.7rem; padding: 10px; }
+  }
+}
+
+@keyframes pulseMystery {
+  0% { opacity: 0.6; text-shadow: 0 0 10px rgba($cyan, 0.3); }
+  100% { opacity: 1; text-shadow: 0 0 25px rgba($cyan, 0.8); }
+}
+
+@keyframes winnerPulse {
+  0% { transform: scale(1.35); }
+  100% { transform: scale(1.4); }
+}
+
+// ─── Linhas de Mira ──────────────────────────────────────────────────────────
+.gacha-selector {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 150px;
+  height: 210px;
+  pointer-events: none;
+
+  .selector-line {
+    position: absolute;
+    left: -10px;
+    right: -10px;
+    height: 2px;
+    background: $cyan;
+    box-shadow: 0 0 10px $cyan, 0 0 20px rgba($cyan, 0.5);
+    &.top { top: 0; }
+    &.bottom { bottom: 0; }
+  }
+}
+
+// ─── Janela Principal e Cenas ────────────────────────────────────────────────
+.system-window {
+  max-width: 1000px;
+  margin: 0 auto; /* Mantém centralizado horizontalmente e colado no topo */
+  background: $bg-panel;
+  border: 1px solid rgba($cyan, 0.3);
+  box-shadow: 0 0 30px rgba($cyan, 0.05), inset 0 0 20px rgba($cyan, 0.05);
+  backdrop-filter: blur(8px);
+  padding: 3rem;
+  border-radius: 2px;
+}
+
+.system-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  
+  .sys-alert {
+    color: $red;
+    font-weight: bold;
+    letter-spacing: 4px;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px rgba($red, 0.6);
+    .alert-icon, span {
+      display: inline-block;
+      border: 1px solid $red;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      line-height: 22px;
+      margin-right: 8px;
+    }
+  }
+
+  h1 {
+    font-family: $title;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $text-light;
+    letter-spacing: 2px;
+    border-bottom: 1px solid rgba($cyan, 0.2);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .player-stats {
+    text-align: left;
+    background: rgba($cyan, 0.03);
+    padding: 1.5rem;
+    border-left: 3px solid $cyan;
+    margin-bottom: 2rem;
+    p { margin: 0.5rem 0; }
+
+    .highlight, .stat-val { color: $cyan; font-weight: bold; }
+
+    .progress-container, .progress-track {
+      width: 100%;
+      height: 8px;
+      background-color: #1a2230;
+      margin: 1rem 0;
+      overflow: hidden;
+
+      .progress-bar, .progress-fill {
+        height: 100%;
+        background-color: $cyan;
+        box-shadow: 0 0 10px $cyan;
+        transition: width 0.5s ease-in-out;
+      }
+    }
+    .gold-count, .gold-line {
+      font-size: 1.2rem;
+      strong { color: $text-light; }
+    }
+  }
+
+  .btn-system-roll {
+    background-color: transparent;
+    color: $cyan;
+    border: 1px solid $cyan;
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    font-family: $mono;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 0 10px rgba($cyan, 0.1);
+
+    &:hover {
+      background-color: rgba($cyan, 0.1);
+      box-shadow: 0 0 15px rgba($cyan, 0.3), inset 0 0 15px rgba($cyan, 0.2);
+      text-shadow: 0 0 5px $cyan;
+    }
+  }
+}
+
+.system-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+}
+
+.slot, .system-slot {
+  background-color: $bg-slot;
+  border: 1px solid rgba($cyan, 0.15);
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $cyan;
+    background-color: rgba($cyan, 0.05);
+  }
+
+  .id, .s-id {
+    font-size: 0.75rem;
+    color: $text-dim;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+  }
+
+  .amount, .s-amount {
+    font-family: $title;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: $text-muted;
+  }
+
+  &.cleared {
+    background-color: rgba($cyan, 0.05);
+    border-color: rgba($cyan, 0.4);
+    pointer-events: none;
+    
+    .id, .amount, .s-id, .s-amount { opacity: 0.3; }
+
+    .cleared-overlay, .cleared-stamp {
+      position: absolute;
+      color: $cyan;
+      font-weight: bold;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+      text-shadow: 0 0 5px $cyan;
+      transform: rotate(-15deg);
+    }
+  }
+}
+
+.focus-mode {
+  width: 100%;
+  max-width: 750px;
+  margin: 0 auto auto auto; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.85);
+  z-index: 100;
+}
+
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.intro-message {
+  margin: 2rem 0 3rem 0;
+  h2 {
+    font-family: $title;
+    color: $text-light;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 15px rgba($cyan, 0.3);
+  }
+  p {
+    color: $text-muted;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.action-btn {
+  font-family: $mono;
+  cursor: pointer;
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  padding: 1.2rem 4rem;
+  color: $cyan;
+  border: 1px solid $cyan;
+  background: rgba($cyan, 0.05);
+  transition: all 0.2s;
+  
+  &:hover {
+    background: rgba($cyan, 0.1);
+    box-shadow: 0 0 15px rgba($cyan, 0.2);
+  }
+
+  &.confirm-btn {
+    color: $bg-color;
+    background: $cyan;
+    box-shadow: 0 0 30px rgba($cyan, 0.6);
+    &:hover {
+      background: $text-light;
+      box-shadow: 0 0 50px rgba($text-light, 0.8);
+    }
+  }
+}
+
+.fade-in { animation: fadeInDelay 0.6s ease forwards; }
+
+@keyframes fadeInDelay {
+  from { opacity: 0; filter: blur(10px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+.mt-4 { margin-top: 2rem; }
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0 1.4rem 0;
+
+  .div-icon { color: rgba($cyan, 0.4); font-size: 0.9rem; }
+  .div-text { font-size: 0.85rem; letter-spacing: 3px; color: $text-dim; white-space: nowrap; }
+
+  &::before, &::after { content: ''; flex: 1; height: 1px; }
+  &::before { background: linear-gradient(90deg, transparent, rgba($cyan, 0.2)); }
+  &::after  { background: linear-gradient(270deg, transparent, rgba($cyan, 0.2)); }
+}
+
+.btn-extra {
+  background: transparent;
+  border: 1px solid rgba($cyan, 0.2);
+  color: $cyan;
+  font-family: $mono;
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-left: auto;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: rgba($cyan, 0.1);
+    border-color: $cyan;
+  }
+}
+// ─── Input de Registro (Tela de Setup) ───────────────────────────────────────
+.system-input {
+  background: rgba($cyan, 0.05);
+  border: 1px solid rgba($cyan, 0.4);
+  color: $text-light;
+  font-family: $title;
+  font-weight: bold;
+  font-size: 1.8rem;
+  padding: 1rem;
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
+  margin-top: 1.5rem;
+  outline: none;
+  box-shadow: inset 0 0 10px rgba($cyan, 0.1);
+  transition: all 0.3s;
+  letter-spacing: 2px;
+
+  &:focus {
+    border-color: $cyan;
+    background: rgba($cyan, 0.08);
+    box-shadow: 0 0 15px rgba($cyan, 0.3), inset 0 0 15px rgba($cyan, 0.2);
+  }
+  
+  &::placeholder {
+    color: rgba($text-muted, 0.4);
+    font-size: 1.2rem;
+    font-weight: normal;
+    letter-spacing: 1px;
+    font-family: $mono;
+  }
+}

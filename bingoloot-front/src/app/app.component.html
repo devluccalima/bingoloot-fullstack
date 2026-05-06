@@ -1,0 +1,243 @@
+<canvas id="particles"></canvas>
+
+<!-- ========================================== -->
+<!--             START SYSTEM                   -->
+<!-- ========================================== -->
+
+
+@if (appState === 'BOOT') {
+  <div class="boot-screen">
+    <button class="btn-boot" (click)="startSystem()">
+      [ INICIAR SISTEMA ]
+    </button>
+  </div>
+}
+
+<!-- ========================================== -->
+<!--             VIDEO: CUTCINE                 -->
+<!-- ========================================== -->
+@if (appState === 'VIDEO') {
+  <div class="cinematic-overlay">
+    <video 
+      autoplay 
+      playsinline
+      class="cinematic-video" 
+      (ended)="onVideoEnd()">
+      <source src="despertar.mp4" type="video/mp4">
+    </video>
+    
+    <button class="skip-btn" (click)="onVideoEnd()">[ PULAR CENA ]</button>
+  </div>
+}
+<!-- ========================================== -->
+<!-- CENA 0: REGISTRO DE JOGADOR (1º Acesso)    -->
+<!-- ========================================== -->
+@if (appState === 'SETUP') {
+  <main class="system-window focus-mode prompt-intro"
+        [class.system-opening]="!isClosing"
+        [class.system-closing]="isClosing">
+    <div class="sys-alert pulse">
+      <div class="alert-icon">!</div>
+      [ DESPERTAR DETECTADO ]
+    </div>
+    
+    <div class="intro-message">
+      <h2>Inicializando Sistema...</h2>
+      <p>Um novo usuário foi detectado.</p>
+      <p>Insira sua identificação para prosseguir.</p>
+      
+      <!-- O Input Neon -->
+      <input 
+        type="text" 
+        class="system-input" 
+        #nameInput 
+        placeholder="Digite seu nome..." 
+        (keyup.enter)="savePlayerName(nameInput.value)"
+        autocomplete="off"
+        maxlength="15">
+    </div>
+
+    <button class="btn-gacha action-btn" (click)="savePlayerName(nameInput.value)">
+      <span>[ REGISTRAR JOGADOR ]</span>
+      <span class="btn-shimmer"></span>
+    </button>
+  </main>
+}
+
+<!-- ========================================== -->
+<!-- CENA 1: INTRODUÇÃO / AVISO DO SISTEMA      -->
+<!-- ========================================== -->
+@if (appState === 'INTRO') {
+  <main class="system-window focus-mode prompt-intro"
+        [class.system-opening]="!isClosing"
+        [class.system-closing]="isClosing">
+    <div class="sys-alert pulse">
+      <div class="alert-icon">!</div>
+      [ MISSÃO DIÁRIA DISPONÍVEL ]
+    </div>
+    
+    <div class="intro-message">
+      <h2>O Sistema convoca {{ playerName }}.</h2>
+      <p>Se a dor não te matar, ela apenas te tornará mais forte.</p>
+      <p>Deseja verificar sua missão de hoje?</p>
+    </div>
+
+    <button class="btn-gacha action-btn" (click)="startDailyQuest()">
+      <span class="btn-icon">👁</span>
+      <span>[ ACEITAR CHAMADO ]</span>
+      <span class="btn-shimmer"></span>
+    </button>
+  </main>
+}
+
+<!-- ========================================== -->
+<!-- CENA 2: A ROLETA / GACHA ATIVO             -->
+<!-- ========================================== -->
+@if (appState === 'GACHA') {
+  <main class="system-window focus-mode prompt-gacha"
+        [class.system-opening]="!isClosing"
+        [class.system-closing]="isClosing">
+    <div class="gacha-label">[ INVOCAR ALVO DIÁRIO ]</div>
+
+    <div class="gacha-stage" [class.has-result]="!!currentQuest && !isSpinning">
+      
+      <div class="gacha-track-wrapper">
+        <div class="gacha-track" [style.transform]="'translateX(' + trackOffset + ')'" [style.transition]="trackTransition">
+          
+          @for (card of dummyCards; track $index) {
+            <div class="gacha-card" 
+                 [ngClass]="card.rarity"
+                 [class.is-winner]="currentQuest && !isSpinning && $index === 60">
+                 
+              <!-- O Motor de Rotação da Carta -->
+              <div class="card-flipper">
+                
+                <!-- FACE 1: O Mistério (O que aparece girando) -->
+                <div class="card-face card-front">
+                  <div class="mystery-mark">?</div>
+                  <div class="card-bottom">SISTEMA</div>
+                </div>
+
+                <!-- FACE 2: A Revelação (O que aparece ao virar) -->
+                <div class="card-face card-back">
+                  <div class="card-top">
+                    <span class="card-id">Nº {{ card.id | number:'3.0-0' }}</span>
+                    <span class="card-rarity">{{ card.rarityLabel }}</span>
+                  </div>
+                  <div class="card-middle">
+                    <span class="currency">R$</span>
+                    <span class="card-amount">{{ card.amount }}</span>
+                  </div>
+                  <div class="card-bottom">ALVO DIÁRIO</div>
+                </div>
+
+              </div>
+            </div>
+          }
+
+        </div>
+        
+        @if (!currentQuest || isSpinning) {
+          <div class="gacha-selector">
+            <div class="selector-line top"></div>
+            <div class="selector-line bottom"></div>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (!currentQuest) {
+      <button class="btn-gacha action-btn mt-4" (click)="rollQuest()" [disabled]="isSpinning">
+        <span class="btn-icon">⚔</span>
+        <span>{{ isSpinning ? 'CALCULANDO...' : 'INICIAR ROLETA' }}</span>
+        <span class="btn-shimmer"></span>
+      </button>
+    } @else {
+      <button class="btn-gacha action-btn confirm-btn mt-4" (click)="confirmDeposit(currentQuest.id)">
+        <span>[ CONFIRMAR SLOT ]</span>
+        <span class="btn-shimmer"></span>
+      </button>
+    }
+  </main>
+}
+
+<!-- ========================================== -->
+<!-- CENA 3: DASHBOARD GERAL                    -->
+<!-- ========================================== -->
+@if (appState === 'DASHBOARD') {
+  <main class="system-window"
+        [class.system-opening]="!isClosing"
+        [class.system-closing]="isClosing">
+    <header class="system-header">
+      <h1>
+        <span class="title-text">Status do Jogador</span>
+        <span class="title-cursor"></span>
+      </h1>
+
+      <div class="player-stats">
+        <div class="stat-row">
+          <div class="stat-item">
+            <span class="stat-label">NOME:</span>
+            <span class="stat-val"{}>{{ playerName }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">RANK ATUAL:</span>
+            <span class="stat-val rank">Class {{ playerRank }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">OBJETIVO:</span>
+            <span class="stat-val">Primeiros 20K</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">SLOTS (EXP):</span>
+            <span class="stat-val">{{ slotsPaid }} / {{ deposits.length }}</span>
+          </div>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-labels">
+            <span>BARRA DE PROGRESSO DO JOGADOR:</span>
+            <span class="pct-val">{{ (totalSaved / 20100) * 100 | number:'1.0-0' }}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="(totalSaved / 20100) * 100">
+              <div class="progress-glow"></div>
+            </div>
+          </div>
+          <div class="gold-line">
+            FUNDOS ACUMULADOS:
+            <strong>{{ totalSaved | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+            <span class="target">/ R$ 20.100,00</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="section-divider">
+      <span class="div-icon">◈</span>
+      <span class="div-text">HISTÓRICO DA MASMORRA</span>
+      <span class="div-icon">◈</span>
+      <button class="btn-extra" (click)="forceExtraDeposit()">+ NOVA QUEST</button>
+    </div>
+
+    <div class="system-grid">
+      @for (deposit of deposits; track deposit.id) {
+        <div
+          class="slot"
+          [id]="'slot-' + deposit.id"
+          [ngClass]="getQuestRarity(deposit.amount)"
+          [class.cleared]="deposit.isPaid"
+          (click)="confirmDeposit(deposit.id)">
+
+          <span class="s-id">ID.{{ deposit.id | number:'3.0-0' }}</span>
+          <span class="s-amount">R$ {{ deposit.amount }}</span>
+          @if (deposit.isPaid) {
+            <div class="cleared-overlay">
+              <span class="cleared-stamp">✓</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </main>
+}
